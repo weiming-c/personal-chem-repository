@@ -56,11 +56,15 @@ async def health_check():
 # 注册路由
 from app.routers.questions import router as question_router, router_ocr, router_upload
 from app.routers.search import router as search_router
+from app.routers.tags import router as tags_router
+from app.routers.wrong_questions import router as wrong_questions_router
 
 app.include_router(question_router)
 app.include_router(router_ocr)
 app.include_router(router_upload)
 app.include_router(search_router)
+app.include_router(tags_router)
+app.include_router(wrong_questions_router)
 # 后续步骤逐步添加:
 # app.include_router(tags.router)
 # app.include_router(search.router)
