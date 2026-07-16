@@ -1,4 +1,4 @@
-<template>
+z<template>
   <div class="home-page">
     <div class="page-header">
       <h1>化学竞赛题库</h1>
