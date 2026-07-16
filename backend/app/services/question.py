@@ -107,11 +107,12 @@ async def create_question(
     data: QuestionCreate,
     image_url: str | None = None,
     image: UploadFile | None = None,
+    answer_image_url: str | None = None,
 ) -> QuestionResponse:
     """创建题目"""
     user_id = settings.DEFAULT_USER_ID
 
-    # 处理图片：优先用已上传的URL，其次处理直接上传的文件
+    # 处理题图：优先用已上传的URL，其次处理直接上传的文件
     final_image_url = image_url or None
     if final_image_url is None and image and image.filename:
         final_image_url = await save_upload(image)
@@ -123,6 +124,7 @@ async def create_question(
         note=data.note,
         source=data.source,
         image_url=final_image_url,
+        answer_image_url=answer_image_url or None,
     )
     db.add(question)
     await db.flush()  # 获取 question.id
@@ -142,6 +144,7 @@ async def create_question(
         id=question.id,
         userId=question.user_id,
         imageUrl=question.image_url,
+        answerImageUrl=question.answer_image_url,
         content=question.content,
         answer=question.answer,
         remark=question.note,
@@ -164,6 +167,7 @@ async def get_question(db: AsyncSession, question_id: int) -> QuestionResponse:
         id=question.id,
         userId=question.user_id,
         imageUrl=question.image_url,
+        answerImageUrl=question.answer_image_url,
         content=question.content,
         answer=question.answer,
         remark=question.note,
@@ -242,6 +246,7 @@ async def list_questions(
         items.append(QuestionListItem(
             id=q.id,
             imageUrl=q.image_url,
+            answerImageUrl=q.answer_image_url,
             content=q.content,
             source=q.source,
             systemTags=system_tags,
@@ -268,6 +273,10 @@ async def update_question(
         question.answer = data.answer
     if data.note is not None:
         question.note = data.note
+    if data.image_url is not None:
+        question.image_url = data.image_url
+    if data.answer_image_url is not None:
+        question.answer_image_url = data.answer_image_url
 
     # 同步标签（传了标签字段才更新）
     if data.system_tag_ids is not None or data.user_tag_ids is not None or data.user_tag_names is not None:
@@ -287,6 +296,7 @@ async def update_question(
         id=question.id,
         userId=question.user_id,
         imageUrl=question.image_url,
+        answerImageUrl=question.answer_image_url,
         content=question.content,
         answer=question.answer,
         remark=question.note,

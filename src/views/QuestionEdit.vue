@@ -7,18 +7,24 @@
     <div class="page-body">
       <!-- 题图上传 -->
       <div class="form-group">
-        <label class="form-label">题图</label>
+        <label class="form-label">题目图片</label>
         <ImageUpload v-model="imageUrl" />
+        <div v-if="imageUrl" class="ocr-section">
+          <button class="btn btn-outline btn-block btn-sm" :disabled="ocrLoadingQ" @click="handleOcrQuestion">
+            {{ ocrLoadingQ ? '识别中...' : '🔍 识别题目图片' }}
+          </button>
+        </div>
       </div>
 
-      <!-- OCR 识别按钮（有图片时显示） -->
-      <div v-if="imageUrl" class="ocr-section">
-        <button class="btn btn-outline btn-block" :disabled="ocrLoading" @click="handleOcr">
-          {{ ocrLoading ? '识别中...' : '🔍 OCR 识别' }}
-        </button>
-        <p v-if="ocrResult" class="ocr-hint">
-          识别置信度：{{ (ocrResult.confidence * 100).toFixed(0) }}%
-        </p>
+      <!-- 答案图上传 -->
+      <div class="form-group">
+        <label class="form-label">答案图片（可选）</label>
+        <ImageUpload v-model="answerImageUrl" />
+        <div v-if="answerImageUrl" class="ocr-section">
+          <button class="btn btn-outline btn-block btn-sm" :disabled="ocrLoadingA" @click="handleOcrAnswer">
+            {{ ocrLoadingA ? '识别中...' : '🔍 识别答案图片' }}
+          </button>
+        </div>
       </div>
 
       <!-- 题干 -->
@@ -39,7 +45,7 @@
           v-model="answer"
           class="form-textarea"
           rows="3"
-          placeholder="输入答案..."
+          placeholder="输入答案或使用 OCR 识别..."
         ></textarea>
       </div>
 
@@ -89,7 +95,6 @@ import TagSelector from '@/components/TagSelector.vue'
 import { useQuestionStore } from '@/stores/question'
 import { useToast } from '@/composables/useToast'
 import { ocrRecognize } from '@/api'
-import type { OcrResult } from '@/types'
 
 const route = useRoute()
 const router = useRouter()
@@ -100,31 +105,43 @@ const isEdit = computed(() => route.name === 'questionEdit')
 const questionId = computed(() => Number(route.params.id))
 
 const imageUrl = ref('')
+const answerImageUrl = ref('')
 const content = ref('')
 const answer = ref('')
 const remark = ref('')
 const systemTagIds = ref<number[]>([])
 const userTagIds = ref<number[]>([])
-const ocrLoading = ref(false)
-const ocrResult = ref<OcrResult | null>(null)
+const ocrLoadingQ = ref(false)
+const ocrLoadingA = ref(false)
 const submitting = ref(false)
 
-async function handleOcr() {
-  ocrLoading.value = true
+async function handleOcrQuestion() {
+  ocrLoadingQ.value = true
   try {
-    const result = await ocrRecognize(imageUrl.value)
-    ocrResult.value = result
+    const result = await ocrRecognize(imageUrl.value, 'question')
     if (result.content && !content.value) {
       content.value = result.content
     }
-    if (result.answer) {
-      answer.value = result.answer
-    }
-    toast.show('识别完成')
+    toast.show('题目图片识别完成')
   } catch {
     toast.show('OCR 识别失败')
   } finally {
-    ocrLoading.value = false
+    ocrLoadingQ.value = false
+  }
+}
+
+async function handleOcrAnswer() {
+  ocrLoadingA.value = true
+  try {
+    const result = await ocrRecognize(answerImageUrl.value, 'answer')
+    if (result.content && !answer.value) {
+      answer.value = result.content
+    }
+    toast.show('答案图片识别完成')
+  } catch {
+    toast.show('OCR 识别失败')
+  } finally {
+    ocrLoadingA.value = false
   }
 }
 
@@ -139,6 +156,7 @@ async function handleSubmit() {
       content: content.value,
       answer: answer.value,
       imageUrl: imageUrl.value,
+      answerImageUrl: answerImageUrl.value,
       remark: remark.value,
       systemTagIds: systemTagIds.value,
       userTagIds: userTagIds.value,
@@ -174,6 +192,7 @@ onMounted(async () => {
     const q = await questionStore.fetchQuestion(questionId.value)
     if (q) {
       imageUrl.value = q.imageUrl || ''
+      answerImageUrl.value = q.answerImageUrl || ''
       content.value = q.content
       answer.value = q.answer || ''
       remark.value = q.remark || ''
@@ -186,13 +205,6 @@ onMounted(async () => {
 
 <style scoped>
 .ocr-section {
-  margin-bottom: 16px;
-}
-
-.ocr-hint {
-  text-align: center;
-  font-size: 12px;
-  color: var(--gray-400);
-  margin-top: 6px;
+  margin-top: 8px;
 }
 </style>

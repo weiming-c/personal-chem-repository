@@ -46,8 +46,8 @@ export function createQuestion(data: CreateQuestionData) {
   const formData = new FormData()
   formData.append('content', data.content)
   formData.append('answer', data.answer || '')
-  // 后端接收逗号分隔字符串
   if (data.imageUrl) formData.append('image_url', data.imageUrl)
+  if (data.answerImageUrl) formData.append('answer_image_url', data.answerImageUrl)
   if (data.remark) formData.append('note', data.remark)
   formData.append('system_tag_ids', data.systemTagIds.join(','))
   formData.append('user_tag_ids', data.userTagIds.join(','))
@@ -148,8 +148,8 @@ export function deletePaper(id: number) {
 
 // ==================== OCR ====================
 
-export function ocrRecognize(imageUrl: string) {
-  return http.post('/ocr/recognize', { imageUrl }).then((res) => unwrap<OcrResult>(res))
+export function ocrRecognize(imageUrl: string, imageType: 'question' | 'answer' = 'question') {
+  return http.post('/ocr/recognize', { imageUrl, imageType }).then((res) => unwrap<OcrResult>(res))
 }
 
 // ==================== AI ====================

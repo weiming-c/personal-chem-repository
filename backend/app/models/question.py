@@ -15,6 +15,7 @@ class Question(Base):
 
     # 题目内容
     image_url: Mapped[str | None] = mapped_column(String(500), comment="题图存储路径")
+    answer_image_url: Mapped[str | None] = mapped_column(String(500), comment="答案图存储路径")
     content: Mapped[str] = mapped_column(Text, comment="题干文本")
     answer: Mapped[str | None] = mapped_column(Text, comment="答案文本")
     note: Mapped[str | None] = mapped_column(Text, comment="用户备注")

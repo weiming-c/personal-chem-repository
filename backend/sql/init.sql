@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS questions (
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL DEFAULT 1,
     image_url VARCHAR(500),
+    answer_image_url VARCHAR(500),
     content TEXT NOT NULL,
     answer TEXT,
     note TEXT,

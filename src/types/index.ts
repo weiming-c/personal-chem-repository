@@ -29,6 +29,7 @@ export interface Question {
   content: string        // 题干文本
   answer: string          // 答案文本
   imageUrl: string        // 题图路径
+  answerImageUrl: string  // 答案图路径
   remark: string          // 备注
   source: 'private' | 'public'  // 来源
   systemTags: SystemTag[]
@@ -41,6 +42,7 @@ export interface CreateQuestionData {
   content: string
   answer: string
   imageUrl: string
+  answerImageUrl: string
   remark?: string
   systemTagIds: number[]
   userTagIds: number[]
@@ -50,6 +52,7 @@ export interface UpdateQuestionData {
   content?: string
   answer?: string
   imageUrl?: string
+  answerImageUrl?: string
   remark?: string
   systemTagIds?: number[]
   userTagIds?: number[]

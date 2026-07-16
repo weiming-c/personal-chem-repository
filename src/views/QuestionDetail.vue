@@ -25,6 +25,15 @@
         <p class="detail-content">{{ question.content }}</p>
       </div>
 
+      <!-- 答案图（点击才显示） -->
+      <div v-if="question.answerImageUrl" class="answer-image-reveal">
+        <div v-if="!answerImageRevealed" class="answer-image-hidden" @click="answerImageRevealed = true">
+          <span class="lock-icon">🔒</span>
+          <span class="reveal-text">点击查看答案图片</span>
+        </div>
+        <img v-else :src="question.answerImageUrl" class="detail-image" />
+      </div>
+
       <!-- 答案 -->
       <div class="detail-section" v-if="question.answer">
         <h3>答案</h3>
@@ -98,6 +107,7 @@ const question = ref<Question | null>(null)
 const loading = ref(true)
 const isWrongQuestion = ref(false)
 const wrongId = ref<number | null>(null)
+const answerImageRevealed = ref(false)
 
 const hasTags = computed(() => {
   return (question.value?.systemTags?.length || 0) + (question.value?.userTags?.length || 0) > 0
@@ -214,5 +224,42 @@ onMounted(async () => {
 .detail-time {
   font-size: 12px;
   color: var(--gray-400);
+}
+
+.answer-image-reveal {
+  margin-bottom: 20px;
+}
+
+.answer-image-hidden {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 40px 20px;
+  background: linear-gradient(135deg, var(--gray-100), #fff);
+  border: 1.5px dashed var(--gray-300);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all .2s;
+  user-select: none;
+}
+
+.answer-image-hidden:hover {
+  border-color: var(--primary);
+  background: var(--primary-bg);
+}
+
+.answer-image-hidden:active {
+  transform: scale(.98);
+}
+
+.answer-image-hidden .lock-icon {
+  font-size: 20px;
+}
+
+.answer-image-hidden .reveal-text {
+  font-size: 15px;
+  color: var(--gray-500);
+  font-weight: 500;
 }
 </style>

@@ -33,11 +33,12 @@ async def api_create_question(
     system_tag_ids: str = Form("", description="系统标签ID（逗号分隔）"),
     user_tag_ids: str = Form("", description="自定义标签ID（逗号分隔）"),
     user_tag_names: str = Form("", description="新建自定义标签名（逗号分隔）"),
-    image_url: str | None = Form(None, description="图片URL（已上传获得）"),
+    image_url: str | None = Form(None, description="题图URL（已上传获得）"),
+    answer_image_url: str | None = Form(None, description="答案图URL（已上传获得）"),
     image: UploadFile | None = File(None, description="题目图片文件（可选直接上传）"),
     db: AsyncSession = Depends(get_db),
 ):
-    """创建题目 — 支持图片上传 + 标签"""
+    """创建题目 — 支持题图+答案图上传 + 标签"""
     def parse_ids(s: str) -> list[int]:
         if not s.strip():
             return []
@@ -58,7 +59,7 @@ async def api_create_question(
         user_tag_names=parse_names(user_tag_names),
     )
 
-    result = await create_question(db, data, image_url, image)
+    result = await create_question(db, data, image_url, image, answer_image_url)
     return success(data=result.model_dump(), message="题目创建成功")
 
 
@@ -126,6 +127,7 @@ from pydantic import BaseModel
 
 class OcrImageUrlRequest(BaseModel):
     imageUrl: str
+    imageType: str = "question"  # question | answer
 
 router_ocr = APIRouter(prefix="/api/ocr", tags=["OCR"])
 
@@ -139,7 +141,7 @@ async def api_ocr_recognize(
         from app.utils.response import error
         return error(code=400, message="请提供图片URL")
 
-    result = await recognize_image(request.imageUrl)
+    result = await recognize_image(request.imageUrl, image_type=request.imageType)
     return success(data=result.model_dump())
 
 

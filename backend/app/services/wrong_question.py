@@ -21,6 +21,7 @@ async def _build_wq_response(db: AsyncSession, wq: WrongQuestion) -> dict:
         "question": {
             "id": question.id,
             "imageUrl": question.image_url,
+            "answerImageUrl": question.answer_image_url,
             "content": (question.content[:100] + "..." if question.content and len(question.content) > 100 else question.content) if question else "",
             "source": question.source if question else "private",
             "systemTags": [],

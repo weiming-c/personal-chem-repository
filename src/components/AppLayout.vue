@@ -21,9 +21,9 @@ import { useToast } from '@/composables/useToast'
 const route = useRoute()
 const toast = useToast()
 
-// 刷题页不显示底部导航
+// 刷题页、录入/编辑题目页不显示底部导航
 const hideTabBar = computed(() => {
-  return route.name === 'practice'
+  return route.name === 'practice' || route.name === 'questionCreate' || route.name === 'questionEdit'
 })
 </script>
 

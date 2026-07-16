@@ -20,6 +20,8 @@ class QuestionUpdate(BaseModel):
     content: str | None = Field(None, description="题干文本")
     answer: str | None = Field(None, description="答案文本")
     note: str | None = Field(None, description="备注", serialization_alias="remark")
+    image_url: str | None = Field(None, description="题图URL", serialization_alias="imageUrl")
+    answer_image_url: str | None = Field(None, description="答案图URL", serialization_alias="answerImageUrl")
     system_tag_ids: list[int] | None = Field(None, description="系统标签ID列表", serialization_alias="systemTagIds")
     user_tag_ids: list[int] | None = Field(None, description="自定义标签ID列表", serialization_alias="userTagIds")
     user_tag_names: list[str] | None = Field(None, description="新建自定义标签名称列表", serialization_alias="userTagNames")
@@ -41,6 +43,7 @@ class QuestionResponse(BaseModel):
     id: int
     userId: int = Field(serialization_alias="userId")
     imageUrl: str | None = Field(default=None, serialization_alias="imageUrl")
+    answerImageUrl: str | None = Field(default=None, serialization_alias="answerImageUrl")
     content: str
     answer: str | None = None
     remark: str | None = Field(default=None, serialization_alias="remark")
@@ -59,6 +62,7 @@ class QuestionListItem(BaseModel):
     """列表项——不暴露答案"""
     id: int
     imageUrl: str | None = Field(default=None, serialization_alias="imageUrl")
+    answerImageUrl: str | None = Field(default=None, serialization_alias="answerImageUrl")
     content: str
     source: str
     systemTags: list[TagInfo] = Field(default_factory=list, serialization_alias="systemTags")
@@ -73,6 +77,7 @@ class QuestionListItem(BaseModel):
 # ---- OCR ----
 class OCRRequest(BaseModel):
     image_url: str = Field(..., description="图片路径或base64")
+    image_type: str = Field("question", description="图片类型：question=题干图, answer=答案图")
 
 
 class OCRResponse(BaseModel):

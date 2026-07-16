@@ -118,6 +118,7 @@ async def search_questions(
         items.append(QuestionListItem(
             id=q.id,
             imageUrl=q.image_url,
+            answerImageUrl=q.answer_image_url,
             content=q.content,
             source=q.source,
             systemTags=system_tags,
