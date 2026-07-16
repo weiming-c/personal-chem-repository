@@ -53,11 +53,17 @@ async def health_check():
     return {"code": 0, "message": "ok", "data": {"version": settings.APP_VERSION}}
 
 
-# 注册路由（后续逐步添加）
-# from app.routers import questions, tags, search, wrong_questions, papers, ocr, ai
-# app.include_router(questions.router, prefix="/api", tags=["题目"])
-# app.include_router(tags.router, prefix="/api", tags=["标签"])
-# ...
+# 注册路由
+from app.routers.questions import router as question_router, router_ocr, router_upload
+
+app.include_router(question_router)
+app.include_router(router_ocr)
+app.include_router(router_upload)
+# 后续步骤逐步添加:
+# app.include_router(tags.router)
+# app.include_router(search.router)
+# app.include_router(wrong_questions.router)
+# app.include_router(papers.router)
 
 if __name__ == "__main__":
     import uvicorn

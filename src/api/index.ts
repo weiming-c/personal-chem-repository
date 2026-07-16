@@ -46,10 +46,11 @@ export function createQuestion(data: CreateQuestionData) {
   const formData = new FormData()
   formData.append('content', data.content)
   formData.append('answer', data.answer || '')
-  formData.append('imageUrl', data.imageUrl)
-  if (data.remark) formData.append('remark', data.remark)
-  data.systemTagIds.forEach((id) => formData.append('systemTagIds', String(id)))
-  data.userTagIds.forEach((id) => formData.append('userTagIds', String(id)))
+  // 后端接收逗号分隔字符串
+  if (data.imageUrl) formData.append('image_url', data.imageUrl)
+  if (data.remark) formData.append('note', data.remark)
+  formData.append('system_tag_ids', data.systemTagIds.join(','))
+  formData.append('user_tag_ids', data.userTagIds.join(','))
   return http.post('/questions', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
   }).then((res) => unwrap<Question>(res))
