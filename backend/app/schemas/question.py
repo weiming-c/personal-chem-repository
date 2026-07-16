@@ -19,10 +19,13 @@ class QuestionCreate(BaseModel):
 class QuestionUpdate(BaseModel):
     content: str | None = Field(None, description="题干文本")
     answer: str | None = Field(None, description="答案文本")
-    note: str | None = Field(None, description="备注")
-    system_tag_ids: list[int] | None = Field(None, description="系统标签ID列表")
-    user_tag_ids: list[int] | None = Field(None, description="自定义标签ID列表")
-    user_tag_names: list[str] | None = Field(None, description="新建自定义标签名称列表")
+    note: str | None = Field(None, description="备注", serialization_alias="remark")
+    system_tag_ids: list[int] | None = Field(None, description="系统标签ID列表", serialization_alias="systemTagIds")
+    user_tag_ids: list[int] | None = Field(None, description="自定义标签ID列表", serialization_alias="userTagIds")
+    user_tag_names: list[str] | None = Field(None, description="新建自定义标签名称列表", serialization_alias="userTagNames")
+
+    class Config:
+        populate_by_name = True
 
 
 # ---- 题目响应 ----

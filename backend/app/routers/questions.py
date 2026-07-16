@@ -1,5 +1,5 @@
 """题目管理 API 路由"""
-from fastapi import APIRouter, Depends, File, Form, Query, UploadFile
+from fastapi import APIRouter, Body, Depends, File, Form, Query, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
@@ -65,38 +65,10 @@ async def api_create_question(
 @router.put("/{question_id}")
 async def api_update_question(
     question_id: int,
-    content: str | None = Form(None),
-    answer: str | None = Form(None),
-    note: str | None = Form(None),
-    system_tag_ids: str | None = Form(None),
-    user_tag_ids: str | None = Form(None),
-    user_tag_names: str | None = Form(None),
+    data: QuestionUpdate = Body(...),
     db: AsyncSession = Depends(get_db),
 ):
     """更新题目"""
-    def parse_ids(s: str | None) -> list[int] | None:
-        if s is None:
-            return None
-        if not s.strip():
-            return []
-        return [int(x.strip()) for x in s.split(",") if x.strip()]
-
-    def parse_names(s: str | None) -> list[str] | None:
-        if s is None:
-            return None
-        if not s.strip():
-            return []
-        return [x.strip() for x in s.split(",") if x.strip()]
-
-    data = QuestionUpdate(
-        content=content,
-        answer=answer,
-        note=note,
-        system_tag_ids=parse_ids(system_tag_ids),
-        user_tag_ids=parse_ids(user_tag_ids),
-        user_tag_names=parse_names(user_tag_names),
-    )
-
     result = await update_question(db, question_id, data)
     return success(data=result.model_dump(), message="题目更新成功")
 
@@ -151,7 +123,6 @@ async def api_delete_question(
 
 # ---------- OCR ----------
 from pydantic import BaseModel
-from fastapi import Body
 
 class OcrImageUrlRequest(BaseModel):
     imageUrl: str
