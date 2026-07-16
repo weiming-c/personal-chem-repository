@@ -11,7 +11,7 @@
         <ImageUpload v-model="imageUrl" />
         <div v-if="imageUrl" class="ocr-section">
           <button class="btn btn-outline btn-block btn-sm" :disabled="ocrLoadingQ" @click="handleOcrQuestion">
-            {{ ocrLoadingQ ? '识别中...' : '🔍 识别题目图片' }}
+            {{ ocrLoadingQ ? '识别中（约30秒，请耐心等待）...' : '🔍 识别题目图片' }}
           </button>
         </div>
       </div>
@@ -22,7 +22,7 @@
         <ImageUpload v-model="answerImageUrl" />
         <div v-if="answerImageUrl" class="ocr-section">
           <button class="btn btn-outline btn-block btn-sm" :disabled="ocrLoadingA" @click="handleOcrAnswer">
-            {{ ocrLoadingA ? '识别中...' : '🔍 识别答案图片' }}
+            {{ ocrLoadingA ? '识别中（约30秒，请耐心等待）...' : '🔍 识别答案图片' }}
           </button>
         </div>
       </div>
@@ -119,12 +119,10 @@ async function handleOcrQuestion() {
   ocrLoadingQ.value = true
   try {
     const result = await ocrRecognize(imageUrl.value, 'question')
-    if (result.content && !content.value) {
-      content.value = result.content
-    }
+    content.value = result.content || content.value
     toast.show('题目图片识别完成')
   } catch {
-    toast.show('OCR 识别失败')
+    toast.show('OCR 识别失败，请重试', 4000)
   } finally {
     ocrLoadingQ.value = false
   }
@@ -134,12 +132,10 @@ async function handleOcrAnswer() {
   ocrLoadingA.value = true
   try {
     const result = await ocrRecognize(answerImageUrl.value, 'answer')
-    if (result.content && !answer.value) {
-      answer.value = result.content
-    }
+    answer.value = result.content || answer.value
     toast.show('答案图片识别完成')
   } catch {
-    toast.show('OCR 识别失败')
+    toast.show('OCR 识别失败，请重试', 4000)
   } finally {
     ocrLoadingA.value = false
   }

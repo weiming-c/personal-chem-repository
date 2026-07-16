@@ -149,7 +149,7 @@ export function deletePaper(id: number) {
 // ==================== OCR ====================
 
 export function ocrRecognize(imageUrl: string, imageType: 'question' | 'answer' = 'question') {
-  return http.post('/ocr/recognize', { imageUrl, imageType }).then((res) => unwrap<OcrResult>(res))
+  return http.post('/ocr/recognize', { imageUrl, imageType }, { timeout: 120000 }).then((res) => unwrap<OcrResult>(res))
 }
 
 // ==================== AI ====================
