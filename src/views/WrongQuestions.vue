@@ -50,7 +50,8 @@
             <span class="wrong-date">{{ formatDate(wq.lastWrongAt) }}</span>
           </div>
           <div class="wrong-preview" @click="goToQuestion(wq)">
-            <p>{{ truncate(wq.question?.content || '', 100) }}</p>
+            <img v-if="wq.question?.imageUrl" :src="wq.question.imageUrl" class="wrong-thumb" />
+            <span v-else class="wrong-no-img">点击查看题目</span>
           </div>
           <div class="wrong-note" v-if="wq.note || wq.wrongReason">
             <strong>笔记：</strong>{{ wq.note || wq.wrongReason }}
@@ -138,10 +139,6 @@ function formatDate(d: string) {
   if (!d) return ''
   const dt = new Date(d)
   return `${dt.getMonth() + 1}/${dt.getDate()}`
-}
-
-function truncate(t: string, len: number) {
-  return t && t.length > len ? t.slice(0, len) + '...' : (t || '')
 }
 
 function goToQuestion(wq: WrongQuestion) {
@@ -285,7 +282,9 @@ onMounted(async () => {
 .status-active { background: var(--danger-bg); color: var(--danger); }
 .status-mastered { background: var(--success-bg); color: var(--success); }
 .wrong-date { margin-left: auto; font-size: 12px; color: var(--gray-400); }
-.wrong-preview { cursor: pointer; font-size: 14px; color: var(--gray-700); margin-bottom: 8px; padding: 8px; background: var(--gray-50); border-radius: var(--radius-sm); }
+.wrong-preview { cursor: pointer; margin-bottom: 8px; border-radius: var(--radius-sm); overflow: hidden; }
+.wrong-thumb { width: 100%; max-height: 160px; object-fit: cover; background: var(--gray-100); }
+.wrong-no-img { font-size: 14px; color: var(--gray-400); padding: 12px; display: block; text-align: center; background: var(--gray-50); }
 .wrong-note { font-size: 13px; color: var(--gray-500); background: var(--primary-bg); padding: 8px 10px; border-radius: var(--radius-sm); margin-bottom: 8px; }
 .wrong-actions { display: flex; gap: 8px; }
 </style>

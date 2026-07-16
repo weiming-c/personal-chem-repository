@@ -7,12 +7,14 @@
       class="card-image"
       alt="题图"
     />
-    <!-- 题干 -->
-    <p class="card-content">{{ truncate(question.content, 120) }}</p>
-    <!-- 答案（仅浏览模式显示） -->
-    <div v-if="showAnswer && question.answer" class="card-answer">
-      <span class="answer-label">答案：</span>{{ question.answer }}
-    </div>
+    <p v-if="!question.imageUrl" class="card-no-image">暂无题图</p>
+    <!-- 答案图（仅浏览模式显示） -->
+    <img
+      v-if="showAnswer && question.answerImageUrl"
+      :src="question.answerImageUrl"
+      class="card-image"
+      alt="答案图"
+    />
     <!-- 标签 -->
     <div class="card-tags" v-if="hasTags">
       <span
@@ -63,11 +65,6 @@ const moreTags = computed(() => {
   return Math.max(0, s - 3) + Math.max(0, u - 3)
 })
 
-function truncate(text: string, len: number) {
-  if (!text) return ''
-  return text.length > len ? text.slice(0, len) + '...' : text
-}
-
 function formatTime(dateStr: string) {
   if (!dateStr) return ''
   const d = new Date(dateStr)
@@ -94,25 +91,11 @@ function formatTime(dateStr: string) {
   background: var(--gray-100);
 }
 
-.card-content {
-  font-size: 15px;
-  line-height: 1.7;
-  color: var(--gray-800);
-  word-break: break-word;
-}
-
-.card-answer {
-  margin-top: 10px;
-  padding: 10px;
-  background: var(--success-bg);
-  border-radius: var(--radius-sm);
+.card-no-image {
   font-size: 14px;
-  color: var(--success);
-  line-height: 1.6;
-}
-
-.answer-label {
-  font-weight: 600;
+  color: var(--gray-400);
+  text-align: center;
+  padding: 20px 0;
 }
 
 .card-tags {

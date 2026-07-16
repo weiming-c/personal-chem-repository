@@ -70,7 +70,8 @@
         <h3>预览 ({{ previewQuestions.length }} 题)</h3>
         <div v-for="(q, i) in previewQuestions" :key="q.id" class="preview-item">
           <span class="preview-num">{{ i + 1 }}</span>
-          <span class="preview-text">{{ truncate(q.content, 60) }}</span>
+          <img v-if="q.imageUrl" :src="q.imageUrl" class="preview-thumb" />
+          <span v-else class="preview-notext">第 {{ i + 1 }} 题</span>
           <span class="preview-tag">{{ q.source === 'public' ? '公共' : '私有' }}</span>
         </div>
         <button class="btn btn-success btn-block" @click="handleSave">保存试卷</button>
@@ -144,10 +145,6 @@ function removeSystemTag(tag: SystemTag) {
   filterTagIds.value = filterTagIds.value.filter(id => id !== tag.id)
 }
 
-function truncate(t: string, len: number) {
-  return t && t.length > len ? t.slice(0, len) + '...' : (t || '')
-}
-
 async function handleGenerate() {
   if (!paperName.value.trim()) { toast.show('请输入试卷名称'); return }
   generating.value = true
@@ -213,8 +210,9 @@ onMounted(async () => {
 .switch-label input { display: none; }
 .preview-section { margin-top: 24px; }
 .preview-section h3 { font-size: 16px; font-weight: 600; margin-bottom: 12px; }
-.preview-item { display: flex; align-items: center; gap: 10px; padding: 10px; background: var(--gray-50); border-radius: var(--radius-sm); margin-bottom: 6px; font-size: 14px; }
+.preview-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; background: var(--gray-50); border-radius: var(--radius-sm); margin-bottom: 6px; font-size: 14px; }
 .preview-num { width: 24px; height: 24px; border-radius: 50%; background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; }
-.preview-text { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.preview-notext { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--gray-400); }
+.preview-thumb { width: 60px; height: 40px; object-fit: cover; border-radius: 4px; flex-shrink: 0; background: var(--gray-200); }
 .preview-tag { font-size: 11px; color: var(--gray-400); flex-shrink: 0; }
 </style>

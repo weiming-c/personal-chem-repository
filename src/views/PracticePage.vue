@@ -19,7 +19,6 @@
       <div class="question-card practice-card">
         <img v-if="currentQuestion.imageUrl" :src="currentQuestion.imageUrl" class="question-img" />
         <div class="question-number">第 {{ currentIndex + 1 }} 题</div>
-        <div class="question-content" v-html="renderContent(currentQuestion.content)"></div>
         <!-- 标签 -->
         <div class="question-tags" v-if="hasTags">
           <span v-for="t in currentQuestion.systemTags || []" :key="'s-'+t.id" class="tag tag-system">{{ t.name }}</span>
@@ -30,7 +29,7 @@
       <!-- 答案区域 -->
       <div v-if="showAllAnswers || answerRevealed" class="answer-section">
         <h3>答案</h3>
-        <div class="answer-text" v-html="renderContent(currentQuestion.answer)"></div>
+        <img v-if="currentQuestion.answerImageUrl" :src="currentQuestion.answerImageUrl" class="answer-img" />
         <div class="answer-actions">
           <button class="btn btn-sm btn-danger" @click="handleMarkWrong">
             📝 加入错题本
@@ -86,10 +85,6 @@ const wrongSet = ref(new Set<number>())
 const currentQuestion = computed(() => questions.value[currentIndex.value] || ({} as Question))
 const hasTags = computed(() => (currentQuestion.value.systemTags?.length || 0) + (currentQuestion.value.userTags?.length || 0) > 0)
 const progressPct = computed(() => questions.value.length > 0 ? ((currentIndex.value + 1) / questions.value.length) * 100 : 0)
-
-function renderContent(text: string) {
-  return (text || '').replace(/\n/g, '<br/>')
-}
 
 function revealAnswer() {
   answerRevealed.value = true
@@ -221,13 +216,6 @@ onMounted(async () => {
   margin-bottom: 12px;
 }
 
-.question-content {
-  font-size: 16px;
-  line-height: 1.9;
-  color: var(--gray-800);
-  white-space: pre-wrap;
-}
-
 .question-tags {
   margin-top: 12px;
   display: flex;
@@ -250,11 +238,13 @@ onMounted(async () => {
   margin-bottom: 8px;
 }
 
-.answer-text {
-  font-size: 15px;
-  line-height: 1.8;
-  color: var(--gray-800);
-  white-space: pre-wrap;
+.answer-img {
+  width: 100%;
+  max-height: 300px;
+  object-fit: contain;
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+  background: #fff;
 }
 
 .answer-actions {

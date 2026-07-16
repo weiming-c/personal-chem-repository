@@ -18,12 +18,7 @@
     <div v-else class="page-body">
       <!-- 题图 -->
       <img v-if="question.imageUrl" :src="question.imageUrl" class="detail-image" />
-
-      <!-- 题干 -->
-      <div class="detail-section">
-        <h3>题干</h3>
-        <p class="detail-content">{{ question.content }}</p>
-      </div>
+      <div v-else class="detail-no-image">暂无题图</div>
 
       <!-- 答案图（点击才显示） -->
       <div v-if="question.answerImageUrl" class="answer-image-reveal">
@@ -32,17 +27,6 @@
           <span class="reveal-text">点击查看答案图片</span>
         </div>
         <img v-else :src="question.answerImageUrl" class="detail-image" />
-      </div>
-
-      <!-- 答案 -->
-      <div class="detail-section" v-if="question.answer">
-        <h3>答案</h3>
-        <AnswerReveal
-          :answer="question.answer"
-          :show-mastered="isWrongQuestion"
-          @mark-wrong="handleMarkWrong"
-          @mark-mastered="handleMarkMastered"
-        />
       </div>
 
       <!-- 标签 -->
@@ -91,7 +75,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import AnswerReveal from '@/components/AnswerReveal.vue'
 import { useQuestionStore } from '@/stores/question'
 import { useWrongQuestionStore } from '@/stores/wrongQuestion'
 import { useToast } from '@/composables/useToast'
@@ -175,6 +158,16 @@ onMounted(async () => {
   border-radius: var(--radius);
   margin-bottom: 20px;
   background: var(--gray-100);
+}
+
+.detail-no-image {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--gray-400);
+  font-size: 15px;
+  margin-bottom: 20px;
+  border: 1.5px dashed var(--gray-200);
+  border-radius: var(--radius);
 }
 
 .detail-section {
