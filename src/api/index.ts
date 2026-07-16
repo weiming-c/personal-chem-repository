@@ -56,7 +56,7 @@ export function createQuestion(data: CreateQuestionData) {
   }).then((res) => unwrap<Question>(res))
 }
 
-export function getQuestions(params: { page: number; pageSize: number; systemTagIds?: number[]; userTagIds?: number[]; source?: string }) {
+export function getQuestions(params: { page: number; pageSize: number; system_tag_id?: number; user_tag_id?: number; source?: string; keyword?: string }) {
   return http.get('/questions', { params }).then((res) => unwrap<PaginatedData<Question>>(res))
 }
 
@@ -97,7 +97,17 @@ export function batchTagQuestions(data: { questionIds: number[]; userTagIds: num
 // ==================== 检索 ====================
 
 export function searchQuestions(params: SearchParams) {
-  return http.get('/search', { params }).then((res) => unwrap<PaginatedData<Question>>(res))
+  const q: Record<string, any> = {
+    keyword: params.keyword,
+    search_scope: params.searchScope,
+    search_range: params.searchRange,
+    page: params.page,
+    pageSize: params.pageSize,
+  }
+  if (params.systemTagIds && params.systemTagIds.length > 0) {
+    q.system_tag_ids = params.systemTagIds.join(',')
+  }
+  return http.get('/search', { params: q }).then((res) => unwrap<PaginatedData<Question>>(res))
 }
 
 // ==================== 错题 ====================

@@ -67,7 +67,7 @@ async function loadQuestions() {
   try {
     const params: any = { page: 1, pageSize }
     if (filterTagId.value > 0) {
-      params.systemTagIds = [filterTagId.value]
+      params.system_tag_id = filterTagId.value
     }
     if (filterSource.value) {
       params.source = filterSource.value
@@ -88,7 +88,7 @@ async function loadMore() {
   try {
     const params: any = { page: page.value, pageSize }
     if (filterTagId.value > 0) {
-      params.systemTagIds = [filterTagId.value]
+      params.system_tag_id = filterTagId.value
     }
     if (filterSource.value) {
       params.source = filterSource.value
@@ -102,7 +102,11 @@ async function loadMore() {
 }
 
 onMounted(async () => {
-  await tagStore.fetchSystemTags()
+  try {
+    await tagStore.fetchSystemTags()
+  } catch {
+    // 标签服务暂未就绪，不影响题目列表加载
+  }
   await loadQuestions()
 })
 </script>

@@ -225,7 +225,7 @@ function removeSystemTag(tag: SystemTag) {
 }
 
 onMounted(async () => {
-  await tagStore.fetchSystemTags()
+  try { await tagStore.fetchSystemTags() } catch { /* 标签服务暂未就绪 */ }
 })
 </script>
 

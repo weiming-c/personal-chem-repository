@@ -29,7 +29,6 @@ class QuestionUpdate(BaseModel):
 class TagInfo(BaseModel):
     id: int
     name: str
-    type: str  # "system" | "user"
 
     class Config:
         from_attributes = True
@@ -37,31 +36,35 @@ class TagInfo(BaseModel):
 
 class QuestionResponse(BaseModel):
     id: int
-    user_id: int
-    image_url: str | None
+    userId: int = Field(serialization_alias="userId")
+    imageUrl: str | None = Field(default=None, serialization_alias="imageUrl")
     content: str
-    answer: str | None
-    note: str | None
+    answer: str | None = None
+    remark: str | None = Field(default=None, serialization_alias="remark")
     source: str
-    tags: list[TagInfo] = Field(default_factory=list)
-    created_at: datetime | None = None
-    updated_at: datetime | None = None
+    systemTags: list[TagInfo] = Field(default_factory=list, serialization_alias="systemTags")
+    userTags: list[TagInfo] = Field(default_factory=list, serialization_alias="userTags")
+    createdAt: datetime | None = Field(default=None, serialization_alias="createdAt")
+    updatedAt: datetime | None = Field(default=None, serialization_alias="updatedAt")
 
     class Config:
         from_attributes = True
+        populate_by_name = True
 
 
 class QuestionListItem(BaseModel):
     """列表项——不暴露答案"""
     id: int
-    image_url: str | None
+    imageUrl: str | None = Field(default=None, serialization_alias="imageUrl")
     content: str
     source: str
-    tags: list[TagInfo] = Field(default_factory=list)
-    created_at: datetime | None = None
+    systemTags: list[TagInfo] = Field(default_factory=list, serialization_alias="systemTags")
+    userTags: list[TagInfo] = Field(default_factory=list, serialization_alias="userTags")
+    createdAt: datetime | None = Field(default=None, serialization_alias="createdAt")
 
     class Config:
         from_attributes = True
+        populate_by_name = True
 
 
 # ---- OCR ----

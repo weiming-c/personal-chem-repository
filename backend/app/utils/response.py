@@ -28,10 +28,12 @@ def paginated(
     return {
         "code": 0,
         "message": "success",
-        "data": data,
-        "total": total,
-        "page": page,
-        "page_size": page_size,
+        "data": {
+            "items": data,
+            "total": total,
+            "page": page,
+            "pageSize": page_size,
+        },
     }
 
 

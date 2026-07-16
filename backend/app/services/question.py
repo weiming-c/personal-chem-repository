@@ -21,9 +21,10 @@ from app.schemas.question import (
 from app.services.upload import save_upload
 
 
-async def _get_tags_for_question(db: AsyncSession, question_id: int) -> list[TagInfo]:
-    """获取题目的所有标签"""
-    tags: list[TagInfo] = []
+async def _get_tags_for_question(db: AsyncSession, question_id: int) -> tuple[list[TagInfo], list[TagInfo]]:
+    """获取题目的所有标签，返回 (systemTags, userTags)"""
+    system_tags: list[TagInfo] = []
+    user_tags: list[TagInfo] = []
 
     # 系统标签
     stmt = (
@@ -33,7 +34,7 @@ async def _get_tags_for_question(db: AsyncSession, question_id: int) -> list[Tag
     )
     result = await db.execute(stmt)
     for _, stag in result.all():
-        tags.append(TagInfo(id=stag.id, name=stag.name, type="system"))
+        system_tags.append(TagInfo(id=stag.id, name=stag.name))
 
     # 用户标签
     stmt = (
@@ -43,9 +44,9 @@ async def _get_tags_for_question(db: AsyncSession, question_id: int) -> list[Tag
     )
     result = await db.execute(stmt)
     for _, utag in result.all():
-        tags.append(TagInfo(id=utag.id, name=utag.name, type="user"))
+        user_tags.append(TagInfo(id=utag.id, name=utag.name))
 
-    return tags
+    return system_tags, user_tags
 
 
 async def _sync_tags(
@@ -136,18 +137,19 @@ async def create_question(
     )
 
     await db.refresh(question)
-    tags = await _get_tags_for_question(db, question.id)
+    system_tags, user_tags = await _get_tags_for_question(db, question.id)
     return QuestionResponse(
         id=question.id,
-        user_id=question.user_id,
-        image_url=question.image_url,
+        userId=question.user_id,
+        imageUrl=question.image_url,
         content=question.content,
         answer=question.answer,
-        note=question.note,
+        remark=question.note,
         source=question.source,
-        tags=tags,
-        created_at=question.created_at,
-        updated_at=question.updated_at,
+        systemTags=system_tags,
+        userTags=user_tags,
+        createdAt=question.created_at,
+        updatedAt=question.updated_at,
     )
 
 
@@ -157,18 +159,19 @@ async def get_question(db: AsyncSession, question_id: int) -> QuestionResponse:
     if not question or question.is_deleted:
         raise HTTPException(status_code=404, detail="题目不存在")
 
-    tags = await _get_tags_for_question(db, question_id)
+    system_tags, user_tags = await _get_tags_for_question(db, question_id)
     return QuestionResponse(
         id=question.id,
-        user_id=question.user_id,
-        image_url=question.image_url,
+        userId=question.user_id,
+        imageUrl=question.image_url,
         content=question.content,
         answer=question.answer,
-        note=question.note,
+        remark=question.note,
         source=question.source,
-        tags=tags,
-        created_at=question.created_at,
-        updated_at=question.updated_at,
+        systemTags=system_tags,
+        userTags=user_tags,
+        createdAt=question.created_at,
+        updatedAt=question.updated_at,
     )
 
 
@@ -235,14 +238,15 @@ async def list_questions(
 
     items = []
     for q in questions:
-        tags = await _get_tags_for_question(db, q.id)
+        system_tags, user_tags = await _get_tags_for_question(db, q.id)
         items.append(QuestionListItem(
             id=q.id,
-            image_url=q.image_url,
+            imageUrl=q.image_url,
             content=q.content,
             source=q.source,
-            tags=tags,
-            created_at=q.created_at,
+            systemTags=system_tags,
+            userTags=user_tags,
+            createdAt=q.created_at,
         ))
 
     return items, total
@@ -278,18 +282,19 @@ async def update_question(
     await db.flush()
     await db.refresh(question)
 
-    tags = await _get_tags_for_question(db, question_id)
+    system_tags, user_tags = await _get_tags_for_question(db, question_id)
     return QuestionResponse(
         id=question.id,
-        user_id=question.user_id,
-        image_url=question.image_url,
+        userId=question.user_id,
+        imageUrl=question.image_url,
         content=question.content,
         answer=question.answer,
-        note=question.note,
+        remark=question.note,
         source=question.source,
-        tags=tags,
-        created_at=question.created_at,
-        updated_at=question.updated_at,
+        systemTags=system_tags,
+        userTags=user_tags,
+        createdAt=question.created_at,
+        updatedAt=question.updated_at,
     )
 
 
