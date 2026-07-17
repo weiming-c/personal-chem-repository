@@ -56,7 +56,7 @@ export function createQuestion(data: CreateQuestionData) {
   }).then((res) => unwrap<Question>(res))
 }
 
-export function getQuestions(params: { page: number; pageSize: number; system_tag_id?: number; user_tag_id?: number; source?: string; keyword?: string }) {
+export function getQuestions(params: { page: number; pageSize: number; system_tag_ids?: string; user_tag_ids?: string; source?: string; keyword?: string }) {
   return http.get('/questions', { params }).then((res) => unwrap<PaginatedData<Question>>(res))
 }
 

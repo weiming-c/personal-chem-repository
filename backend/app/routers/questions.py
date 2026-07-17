@@ -89,19 +89,24 @@ async def api_list_questions(
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     source: str | None = Query(None),
-    system_tag_id: int | None = Query(None),
-    user_tag_id: int | None = Query(None),
+    system_tag_ids: str | None = Query(None, description="系统标签ID，逗号分隔(OR逻辑)"),
+    user_tag_ids: str | None = Query(None, description="用户标签ID，逗号分隔(OR逻辑)"),
     keyword: str | None = Query(None),
     db: AsyncSession = Depends(get_db),
 ):
-    """分页查询题目列表"""
+    """分页查询题目列表 — 支持多标签OR筛选"""
+    def parse_ids(s: str | None) -> list[int] | None:
+        if not s or not s.strip():
+            return None
+        return [int(x.strip()) for x in s.split(",") if x.strip()]
+
     items, total = await list_questions(
         db,
         page=page,
         page_size=page_size,
         source=source,
-        system_tag_id=system_tag_id,
-        user_tag_id=user_tag_id,
+        system_tag_ids=parse_ids(system_tag_ids),
+        user_tag_ids=parse_ids(user_tag_ids),
         keyword=keyword,
     )
     return paginated(

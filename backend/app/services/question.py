@@ -184,11 +184,11 @@ async def list_questions(
     page: int = 1,
     page_size: int = 20,
     source: str | None = None,
-    system_tag_id: int | None = None,
-    user_tag_id: int | None = None,
+    system_tag_ids: list[int] | None = None,
+    user_tag_ids: list[int] | None = None,
     keyword: str | None = None,
 ) -> tuple[list[QuestionListItem], int]:
-    """分页查询题目列表"""
+    """分页查询题目列表 — 支持多标签OR筛选"""
     user_id = settings.DEFAULT_USER_ID
 
     # 基础条件
@@ -199,23 +199,27 @@ async def list_questions(
     if source:
         conditions.append(Question.source == source)
 
-    # 标签筛选
-    if system_tag_id:
-        conditions.append(
+    # 标签筛选 — OR逻辑（匹配任一标签的题目）
+    tag_subquery_parts = []
+    if system_tag_ids:
+        tag_subquery_parts.append(
             Question.id.in_(
                 select(QuestionTag.question_id).where(
-                    QuestionTag.system_tag_id == system_tag_id
+                    QuestionTag.system_tag_id.in_(system_tag_ids)
                 )
             )
         )
-    if user_tag_id:
-        conditions.append(
+    if user_tag_ids:
+        tag_subquery_parts.append(
             Question.id.in_(
                 select(QuestionTag.question_id).where(
-                    QuestionTag.user_tag_id == user_tag_id
+                    QuestionTag.user_tag_id.in_(user_tag_ids)
                 )
             )
         )
+    if tag_subquery_parts:
+        from sqlalchemy import or_ as sql_or
+        conditions.append(sql_or(*tag_subquery_parts))
 
     # 关键词搜索（ILIKE 简易全文检索）
     if keyword:
