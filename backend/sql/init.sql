@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS questions (
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL DEFAULT 1,
     image_url VARCHAR(500),
+    raw_image_url VARCHAR(500),
     answer_image_url VARCHAR(500),
     content TEXT NOT NULL,
     answer TEXT,
@@ -25,6 +26,9 @@ CREATE TABLE IF NOT EXISTS questions (
 CREATE INDEX idx_questions_user_id ON questions(user_id);
 CREATE INDEX idx_questions_source ON questions(source);
 CREATE INDEX idx_questions_is_deleted ON questions(is_deleted);
+
+-- 兼容旧库：补充 raw_image_url 列（已存在的表不会因 CREATE TABLE IF NOT EXISTS 获得新列）
+ALTER TABLE questions ADD COLUMN IF NOT EXISTS raw_image_url VARCHAR(500);
 
 -- 系统预设标签表（树形结构）
 CREATE TABLE IF NOT EXISTS system_tags (

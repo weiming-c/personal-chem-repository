@@ -20,3 +20,7 @@ backend/uploads/*
 
 # IDE
 .idea/
+
+# runtime logs
+*.log
+

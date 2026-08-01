@@ -21,6 +21,7 @@ class QuestionUpdate(BaseModel):
     answer: str | None = Field(None, description="答案文本")
     note: str | None = Field(None, description="备注", serialization_alias="remark")
     image_url: str | None = Field(None, description="题图URL", serialization_alias="imageUrl")
+    raw_image_url: str | None = Field(None, description="题图原图备份URL", serialization_alias="rawImageUrl")
     answer_image_url: str | None = Field(None, description="答案图URL", serialization_alias="answerImageUrl")
     system_tag_ids: list[int] | None = Field(None, description="系统标签ID列表", serialization_alias="systemTagIds")
     user_tag_ids: list[int] | None = Field(None, description="自定义标签ID列表", serialization_alias="userTagIds")
@@ -43,6 +44,7 @@ class QuestionResponse(BaseModel):
     id: int
     userId: int = Field(serialization_alias="userId")
     imageUrl: str | None = Field(default=None, serialization_alias="imageUrl")
+    rawImageUrl: str | None = Field(default=None, serialization_alias="rawImageUrl")
     answerImageUrl: str | None = Field(default=None, serialization_alias="answerImageUrl")
     content: str
     answer: str | None = None

@@ -16,6 +16,8 @@ import type {
   SearchParams,
   OcrResult,
   AiTranslateResult,
+  ImageCorner,
+  UploadResult,
 } from '@/types'
 
 const http = axios.create({
@@ -47,6 +49,7 @@ export function createQuestion(data: CreateQuestionData) {
   formData.append('content', data.content)
   formData.append('answer', data.answer || '')
   if (data.imageUrl) formData.append('image_url', data.imageUrl)
+  if (data.rawImageUrl) formData.append('raw_image_url', data.rawImageUrl)
   if (data.answerImageUrl) formData.append('answer_image_url', data.answerImageUrl)
   if (data.remark) formData.append('note', data.remark)
   formData.append('system_tag_ids', data.systemTagIds.join(','))
@@ -160,10 +163,20 @@ export function aiTranslate(keywords: string) {
 
 // ==================== 图片上传 ====================
 
-export function uploadImage(file: File) {
+/**
+ * 上传图片，可选携带四角归一化坐标触发后端透视矫正增强
+ *
+ * @param file    图片文件
+ * @param corners 四角坐标 [{x,y}*4]，顺序[左上,右上,右下,左下]；缺省/不足4点时后端直接存原图
+ */
+export function uploadImage(file: File, corners?: ImageCorner[]) {
   const formData = new FormData()
   formData.append('file', file)
+  if (corners && corners.length === 4) {
+    formData.append('corners', JSON.stringify(corners))
+  }
   return http.post('/upload', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
-  }).then((res) => unwrap<{ url: string }>(res))
+    timeout: 120000, // 增强流水线耗时较长，放宽超时
+  }).then((res) => unwrap<UploadResult>(res))
 }

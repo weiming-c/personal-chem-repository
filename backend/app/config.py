@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     DB_HOST: str = "localhost"
     DB_PORT: int = 5432
     DB_USER: str = "postgres"
-    DB_PASSWORD: str = "postgres"
+    DB_PASSWORD: str = "a20100105z"
     DB_NAME: str = "chem_question_bank"
 
     @property
@@ -33,6 +33,12 @@ class Settings(BaseSettings):
     UPLOAD_DIR: str = str(Path(__file__).parent.parent / "uploads")
     MAX_UPLOAD_SIZE: int = 10 * 1024 * 1024  # 10MB
     ALLOWED_IMAGE_TYPES: list[str] = ["image/jpeg", "image/png", "image/webp"]
+
+    # 图片增强（前端框四角 + 后端透视矫正 + 压缩后处理）
+    IMAGE_ENHANCE_ENABLED: bool = True
+    ENHANCED_MAX_EDGE: int = 1600  # 增强后图片长边像素
+    ENHANCED_JPEG_QUALITY: int = 82  # 增强图 JPEG 质量
+    KEEP_RAW_IMAGE: bool = True  # 是否保留原图备份（raw_image_url）
 
     # 当前单用户阶段，硬编码 user_id
     DEFAULT_USER_ID: int = 1

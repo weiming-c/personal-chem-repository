@@ -33,7 +33,8 @@ async def api_create_question(
     system_tag_ids: str = Form("", description="系统标签ID（逗号分隔）"),
     user_tag_ids: str = Form("", description="自定义标签ID（逗号分隔）"),
     user_tag_names: str = Form("", description="新建自定义标签名（逗号分隔）"),
-    image_url: str | None = Form(None, description="题图URL（已上传获得）"),
+    image_url: str | None = Form(None, description="题图URL（已上传获得，增强后）"),
+    raw_image_url: str | None = Form(None, description="题图原图备份URL（已上传获得）"),
     answer_image_url: str | None = Form(None, description="答案图URL（已上传获得）"),
     image: UploadFile | None = File(None, description="题目图片文件（可选直接上传）"),
     db: AsyncSession = Depends(get_db),
@@ -59,7 +60,7 @@ async def api_create_question(
         user_tag_names=parse_names(user_tag_names),
     )
 
-    result = await create_question(db, data, image_url, image, answer_image_url)
+    result = await create_question(db, data, image_url, image, answer_image_url, raw_image_url)
     return success(data=result.model_dump(), message="题目创建成功")
 
 
@@ -157,8 +158,15 @@ router_upload = APIRouter(prefix="/api", tags=["上传"])
 @router_upload.post("/upload")
 async def api_upload_image(
     file: UploadFile = File(..., description="图片文件"),
+    corners: str | None = Form(
+        None,
+        description="四角归一化坐标JSON：[{\"x\":0,\"y\":0},...] 4个点，顺序[左上,右上,右下,左下]",
+    ),
 ):
-    """独立图片上传接口 — 返回图片URL"""
+    """独立图片上传接口 — 前端框四角后上传，返回增强后图片URL
+
+    增强流水线：透视矫正 → 压缩 → 存储。corners 缺省/非法时直接存原图。
+    """
     from app.services.upload import save_upload
-    url = await save_upload(file)
-    return success(data={"url": url}, message="上传成功")
+    result = await save_upload(file, corners)
+    return success(data=result.to_dict(), message="上传成功")

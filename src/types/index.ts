@@ -28,7 +28,8 @@ export interface Question {
   userId?: number
   content: string        // 题干文本
   answer: string          // 答案文本
-  imageUrl: string        // 题图路径
+  imageUrl: string        // 题图路径（增强后）
+  rawImageUrl?: string | null  // 题图原图备份路径
   answerImageUrl: string  // 答案图路径
   remark: string          // 备注
   source: 'private' | 'public'  // 来源
@@ -42,6 +43,7 @@ export interface CreateQuestionData {
   content: string
   answer: string
   imageUrl: string
+  rawImageUrl?: string | null
   answerImageUrl: string
   remark?: string
   systemTagIds: number[]
@@ -52,10 +54,26 @@ export interface UpdateQuestionData {
   content?: string
   answer?: string
   imageUrl?: string
+  rawImageUrl?: string | null
   answerImageUrl?: string
   remark?: string
   systemTagIds?: number[]
   userTagIds?: number[]
+}
+
+// ==================== 图片上传 ====================
+
+// 四角归一化坐标（0~1），顺序：[左上, 右上, 右下, 左下]
+export interface ImageCorner {
+  x: number
+  y: number
+}
+
+// 图片上传结果
+export interface UploadResult {
+  url: string                    // 最终图片URL（增强后或原图）
+  rawImageUrl?: string | null    // 原图备份URL
+  enhanced?: boolean             // 是否执行了增强流水线
 }
 
 // ==================== 标签相关 ====================

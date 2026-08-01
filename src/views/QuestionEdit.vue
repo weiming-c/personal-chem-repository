@@ -8,7 +8,7 @@
       <!-- 题图上传 -->
       <div class="form-group">
         <label class="form-label">题目图片</label>
-        <ImageUpload v-model="imageUrl" />
+        <ImageUpload v-model="imageUrl" v-model:rawImageUrl="rawImageUrl" />
         <div v-if="imageUrl" class="ocr-section">
           <button class="btn btn-outline btn-block btn-sm" :disabled="ocrLoadingQ" @click="handleOcrQuestion">
             {{ ocrLoadingQ ? '识别中（约30秒，请耐心等待）...' : '🔍 识别题目图片' }}
@@ -105,6 +105,7 @@ const isEdit = computed(() => route.name === 'questionEdit')
 const questionId = computed(() => Number(route.params.id))
 
 const imageUrl = ref('')
+const rawImageUrl = ref<string | null>(null)
 const answerImageUrl = ref('')
 const content = ref('')
 const answer = ref('')
@@ -152,6 +153,7 @@ async function handleSubmit() {
       content: content.value,
       answer: answer.value,
       imageUrl: imageUrl.value,
+      rawImageUrl: rawImageUrl.value,
       answerImageUrl: answerImageUrl.value,
       remark: remark.value,
       systemTagIds: systemTagIds.value,
@@ -188,6 +190,7 @@ onMounted(async () => {
     const q = await questionStore.fetchQuestion(questionId.value)
     if (q) {
       imageUrl.value = q.imageUrl || ''
+      rawImageUrl.value = q.rawImageUrl || null
       answerImageUrl.value = q.answerImageUrl || ''
       content.value = q.content
       answer.value = q.answer || ''

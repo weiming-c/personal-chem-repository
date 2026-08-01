@@ -108,14 +108,18 @@ async def create_question(
     image_url: str | None = None,
     image: UploadFile | None = None,
     answer_image_url: str | None = None,
+    raw_image_url: str | None = None,
 ) -> QuestionResponse:
     """创建题目"""
     user_id = settings.DEFAULT_USER_ID
 
     # 处理题图：优先用已上传的URL，其次处理直接上传的文件
     final_image_url = image_url or None
+    # 直接上传文件时走增强流水线，可能生成 raw 备份；传入URL时原样保留
     if final_image_url is None and image and image.filename:
-        final_image_url = await save_upload(image)
+        upload_result = await save_upload(image)
+        final_image_url = upload_result.url
+        raw_image_url = upload_result.raw_image_url
 
     question = Question(
         user_id=user_id,
@@ -124,6 +128,7 @@ async def create_question(
         note=data.note,
         source=data.source,
         image_url=final_image_url,
+        raw_image_url=raw_image_url,
         answer_image_url=answer_image_url or None,
     )
     db.add(question)
@@ -144,6 +149,7 @@ async def create_question(
         id=question.id,
         userId=question.user_id,
         imageUrl=question.image_url,
+        rawImageUrl=question.raw_image_url,
         answerImageUrl=question.answer_image_url,
         content=question.content,
         answer=question.answer,
@@ -167,6 +173,7 @@ async def get_question(db: AsyncSession, question_id: int) -> QuestionResponse:
         id=question.id,
         userId=question.user_id,
         imageUrl=question.image_url,
+        rawImageUrl=question.raw_image_url,
         answerImageUrl=question.answer_image_url,
         content=question.content,
         answer=question.answer,
@@ -279,6 +286,8 @@ async def update_question(
         question.note = data.note
     if data.image_url is not None:
         question.image_url = data.image_url
+    if data.raw_image_url is not None:
+        question.raw_image_url = data.raw_image_url
     if data.answer_image_url is not None:
         question.answer_image_url = data.answer_image_url
 
@@ -300,6 +309,7 @@ async def update_question(
         id=question.id,
         userId=question.user_id,
         imageUrl=question.image_url,
+        rawImageUrl=question.raw_image_url,
         answerImageUrl=question.answer_image_url,
         content=question.content,
         answer=question.answer,
